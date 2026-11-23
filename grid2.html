@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid EJ-02 · place-content</title>
+<style>
+:root {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --muted: #71717a;
+  --accent: #8b5cf6;
+  --accent-soft: #f5f3ff;
+  --cell-bg: #d4d4d8;
+  --box-bg: #10b981;
+  --tag-bg: #f0fdf4;
+  --tag-border: #bbf7d0;
+  --tag-text: #15803d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+.header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px 16px;
+  margin-bottom: 24px;
+}
+.header-badge {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.header h1 { font-size: 1.25rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+.header p { font-size: .88rem; color: var(--muted); }
+
+.main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  padding: 0 24px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.panel-section {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-section:last-child { border-bottom: none; }
+.panel-label {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.prop-name {
+  font-family: monospace;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.prop-applies {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn-valor {
+  font-family: monospace;
+  font-size: .8rem;
+  padding: 5px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+}
+.btn-valor:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.btn-valor.activo { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+.codigo-preview {
+  background: #18181b;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: monospace;
+  font-size: .82rem;
+  line-height: 1.8;
+  color: #e4e4e7;
+  margin-top: 4px;
+}
+.codigo-preview .c-prop { color: #c4b5fd; }
+.codigo-preview .c-val  { color: #86efac; }
+.codigo-preview .c-pun  { color: #71717a; }
+.codigo-preview .c-cmt  { color: #4b5563; font-style: italic; }
+
+.viz { display: flex; flex-direction: column; gap: 16px; }
+
+.demo-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+.demo-label {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* El contenedor tiene fondo gris (zona libre visible) */
+.contenedor-demo {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(2, 70px);
+  gap: 8px;
+  background: var(--cell-bg);
+  border-radius: 6px;
+  /* width y height fijos, más grandes que las columnas+gap */
+  width: 460px;
+  height: 240px;
+  padding: 8px;
+  position: relative;
+  transition: all .2s;
+}
+
+/* Flechas de espacio libre */
+.arrow-h, .arrow-v {
+  position: absolute;
+  font-family: monospace;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #9f1239;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.arrow-h {
+  bottom: -22px;
+  left: 0;
+  right: 0;
+  justify-content: center;
+}
+.arrow-v {
+  right: -60px;
+  top: 0;
+  bottom: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.caja-demo {
+  background: var(--box-bg);
+  color: #fff;
+  font-family: monospace;
+  font-size: .85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all .3s;
+}
+
+/* Medidas */
+.medidas {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.medida-chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: .8rem;
+  line-height: 1.4;
+}
+.medida-chip strong { font-family: monospace; }
+.medida-chip .libre { color: #9f1239; font-weight: 700; }
+
+.tabla-valores {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tabla-valores table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.tabla-valores th {
+  background: var(--bg);
+  padding: 8px 14px;
+  text-align: left;
+  font-size: .72rem;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.tabla-valores td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tabla-valores tr:last-child td { border-bottom: none; }
+.tabla-valores td:first-child { font-family: monospace; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.tabla-valores td:last-child { color: var(--muted); font-size: .82rem; line-height: 1.5; }
+
+.info-nota {
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: .85rem;
+  color: var(--tag-text);
+  line-height: 1.6;
+}
+code.ic {
+  background: rgba(0,0,0,.07);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: .8rem;
+}
+
+.default-tag {
+  font-family: system-ui, sans-serif;
+  font-size: .68rem;
+  font-weight: 600;
+  background: rgba(255,255,255,.25);
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: .02em;
+  vertical-align: middle;
+}
+.btn-valor:not(.activo) .default-tag {
+  background: #e4e4e7;
+  color: #71717a;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .header h1 { font-size: 1.1rem; }
+  .demo-contenedor {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Grid Workshop · EJ-02</div>
+  <h1>justify-content / align-content / place-content</h1>
+  <p>¿Cómo se distribuye el espacio libre <em>entre las pistas</em> del grid?</p>
+</div>
+
+<div class="main">
+
+  <!-- Panel de controles -->
+  <aside class="panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Diferencia clave</div>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6">
+        <code class="ic">justify-content</code> y <code class="ic">align-content</code>
+        distribuyen el espacio libre <strong>entre columnas y filas</strong>,
+        no dentro de las celdas.<br><br>
+        Solo tienen efecto cuando las pistas tienen <strong>tamaño fijo</strong>
+        (px, em…) y el contenedor es <strong>más grande</strong> que la suma de pistas + gaps.
+      </p>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">justify-content (eje horizontal)</div>
+      <div class="valores" id="btns-jc">
+        <button class="btn-valor activo" data-prop="jc" data-val="start">start <span class="default-tag">por defecto</span></button>
+        <button class="btn-valor" data-prop="jc" data-val="end">end</button>
+        <button class="btn-valor" data-prop="jc" data-val="center">center</button>
+        <button class="btn-valor" data-prop="jc" data-val="space-between">space-between</button>
+        <button class="btn-valor" data-prop="jc" data-val="space-around">space-around</button>
+        <button class="btn-valor" data-prop="jc" data-val="space-evenly">space-evenly</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">align-content (eje vertical)</div>
+      <div class="valores" id="btns-ac">
+        <button class="btn-valor activo" data-prop="ac" data-val="start">start <span class="default-tag">por defecto</span></button>
+        <button class="btn-valor" data-prop="ac" data-val="end">end</button>
+        <button class="btn-valor" data-prop="ac" data-val="center">center</button>
+        <button class="btn-valor" data-prop="ac" data-val="space-between">space-between</button>
+        <button class="btn-valor" data-prop="ac" data-val="space-around">space-around</button>
+        <button class="btn-valor" data-prop="ac" data-val="space-evenly">space-evenly</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">CSS resultante</div>
+      <div class="codigo-preview">
+        <span class="c-cmt">/* contenedor: 460×240px */</span><br>
+        <span class="c-cmt">/* pistas: 3×100px + 2×8px = 316px */</span><br>
+        <span class="c-cmt">/* libre H: <span id="cv-libreH">144px</span> · libre V: <span id="cv-libreV">94px</span> */</span><br><br>
+        <span class="c-pun">.contenedor {</span><br>
+        &nbsp;&nbsp;<span class="c-prop">justify-content</span><span class="c-pun">: </span><span class="c-val" id="cv-jc">start</span><span class="c-pun">;</span><br>
+        &nbsp;&nbsp;<span class="c-prop">align-content</span><span class="c-pun">: </span><span class="c-val" id="cv-ac">start</span><span class="c-pun">;</span><br>
+        <span class="c-pun">}</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Shorthand: place-content</div>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:10px">
+        <code class="ic">place-content: &lt;align-content&gt; &lt;justify-content&gt;</code>
+      </p>
+      <div class="valores">
+        <button class="btn-valor" onclick="setPlace('center','center')">center center</button>
+        <button class="btn-valor" onclick="setPlace('end','space-between')">end space-between</button>
+        <button class="btn-valor" onclick="setPlace('space-evenly','space-evenly')">space-evenly</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Visualización -->
+  <div class="viz">
+
+    <div class="demo-wrap">
+      <div class="demo-label">Vista previa — contenedor: 460 × 240 px · pistas: 3 × 100 px · 2 filas × 70 px</div>
+
+      <div class="medidas">
+        <div class="medida-chip">Ancho pistas: <strong>316px</strong> · Contenedor: <strong>460px</strong> · <span class="libre">Libre: 144px</span></div>
+        <div class="medida-chip">Alto pistas: <strong>156px</strong> · Contenedor: <strong>240px</strong> · <span class="libre">Libre: 84px</span></div>
+      </div>
+
+      <div style="position:relative;width:fit-content">
+        <div class="contenedor-demo" id="gridDemo">
+          <div class="caja-demo">1</div>
+          <div class="caja-demo">2</div>
+          <div class="caja-demo">3</div>
+          <div class="caja-demo">4</div>
+          <div class="caja-demo">5</div>
+          <div class="caja-demo">6</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabla-valores">
+      <table>
+        <thead>
+          <tr><th>valor</th><th>cómo reparte el espacio libre</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>start</td><td>Todo el espacio al final. Las pistas se agrupan al inicio.</td></tr>
+          <tr><td>end</td><td>Todo el espacio al principio. Las pistas se agrupan al final.</td></tr>
+          <tr><td>center</td><td>Espacio repartido a partes iguales antes y después del grupo.</td></tr>
+          <tr><td>space-between</td><td>Espacio solo entre pistas. Sin margen en los extremos.</td></tr>
+          <tr><td>space-around</td><td>Espacio igual a cada lado de cada pista. Extremos = ½ del hueco central.</td></tr>
+          <tr><td>space-evenly</td><td>Espacio exactamente igual entre pistas <em>y</em> en los extremos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-nota">
+      <strong>¿En qué se diferencia de <code class="ic">justify-items</code>?</strong><br>
+      <code class="ic">justify-content</code> mueve las <em>columnas dentro del contenedor</em>.
+      <code class="ic">justify-items</code> mueve los <em>elementos dentro de su celda</em>.
+      Son dos niveles distintos de alineación.
+    </div>
+
+    <!-- ── RETO ── -->
+    <div style="background:#1e1b4b;border-radius:10px;padding:20px 22px;color:#e0e7ff">
+      <div style="font-family:monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;margin-bottom:10px">🎯 Reto — escríbelo tú</div>
+      <p style="font-size:.88rem;line-height:1.7;margin-bottom:14px">
+        Crea un archivo <code style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:4px">reto-ej02.html</code> con este grid:<br>
+        • <strong>5 columnas de 80px</strong> y <strong>3 filas de 60px</strong><br>
+        • Contenedor de <strong>600 × 300px</strong><br><br>
+        Consigue que las columnas queden <strong>distribuidas con espacio igual entre ellas y en los bordes</strong>,
+        y las filas <strong>centradas verticalmente</strong>. Usa el shorthand <code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px">place-content</code>.
+      </p>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px 16px;font-family:monospace;font-size:.82rem;line-height:2;color:#c7d2fe">
+        <span style="color:#6366f1">/* punto de partida */</span><br>
+        .contenedor {<br>
+        &nbsp;&nbsp;display: grid;<br>
+        &nbsp;&nbsp;grid-template-columns: repeat(5, 80px);<br>
+        &nbsp;&nbsp;grid-template-rows: repeat(3, 60px);<br>
+        &nbsp;&nbsp;gap: 8px;<br>
+        &nbsp;&nbsp;width: 600px;<br>
+        &nbsp;&nbsp;height: 300px;<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← place-content aquí */</span><br>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let jcVal = 'start';
+  let acVal = 'start';
+  const grid = document.getElementById('gridDemo');
+
+  function update() {
+    grid.style.justifyContent = jcVal;
+    grid.style.alignContent = acVal;
+    document.getElementById('cv-jc').textContent = jcVal;
+    document.getElementById('cv-ac').textContent = acVal;
+  }
+
+  document.querySelectorAll('[data-prop="jc"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-prop="jc"]').forEach(b => b.classList.remove('activo'));
+      this.classList.add('activo');
+      jcVal = this.dataset.val;
+      update();
+    });
+  });
+
+  document.querySelectorAll('[data-prop="ac"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-prop="ac"]').forEach(b => b.classList.remove('activo'));
+      this.classList.add('activo');
+      acVal = this.dataset.val;
+      update();
+    });
+  });
+
+  function setPlace(ac, jc) {
+    acVal = ac; jcVal = jc;
+    document.querySelectorAll('[data-prop="jc"]').forEach(b => b.classList.toggle('activo', b.dataset.val === jcVal));
+    document.querySelectorAll('[data-prop="ac"]').forEach(b => b.classList.toggle('activo', b.dataset.val === acVal));
+    update();
+  }
+
+  update();
+</script>
+
+</body>
+</html>

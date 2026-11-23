@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid EJ-06 · auto-fit + minmax</title>
+<style>
+:root {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --muted: #71717a;
+  --accent: #0ea5e9;
+  --accent-soft: #f0f9ff;
+  --tag-bg: #fefce8;
+  --tag-border: #fde047;
+  --tag-text: #713f12;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); padding:0 0 60px; }
+
+.header { background:var(--panel); border-bottom:1px solid var(--border); padding:20px 24px 16px; margin-bottom:24px; }
+.header-badge { font-family:monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); padding:3px 10px; border-radius:999px; display:inline-block; margin-bottom:8px; }
+.header h1 { font-size:1.25rem; font-weight:700; margin-bottom:4px; }
+.header p  { font-size:.88rem; color:var(--muted); }
+
+.main { display:grid; grid-template-columns:300px 1fr; gap:20px; padding:0 24px; align-items:start; }
+
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.panel-section { padding:16px 18px; border-bottom:1px solid var(--border); }
+.panel-section:last-child { border-bottom:none; }
+.panel-label { font-family:monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+
+.ctrl { margin-bottom:14px; }
+.ctrl label { display:flex; align-items:center; justify-content:space-between; font-size:.84rem; margin-bottom:6px; }
+.ctrl label span { font-family:monospace; color:var(--accent); font-weight:700; }
+.ctrl input[type=range] { width:100%; accent-color:var(--accent); }
+.ctrl-hint { font-size:.75rem; color:var(--muted); margin-top:2px; }
+
+.modo-wrap { display:flex; gap:6px; }
+.btn-modo {
+  flex:1; font-family:monospace; font-size:.78rem; padding:7px 6px;
+  border:1.5px solid var(--border); border-radius:6px;
+  background:var(--bg); color:var(--muted); cursor:pointer; transition:all .15s; text-align:center;
+}
+.btn-modo.activo { border-color:var(--accent); background:var(--accent); color:#fff; }
+
+.codigo-preview { background:#18181b; border-radius:8px; padding:14px 16px; font-family:monospace; font-size:.8rem; line-height:1.9; color:#e4e4e7; white-space:pre-wrap; }
+.c-prop { color:#7dd3fc; }
+.c-val  { color:#86efac; }
+.c-fn   { color:#fde68a; }
+.c-pun  { color:#71717a; }
+.c-num  { color:#fb923c; }
+
+.viz { display:flex; flex-direction:column; gap:16px; }
+.demo-wrap { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.demo-label { font-family:monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+
+/* Contenedor de la galería — se redimensiona */
+.resize-hint { font-size:.78rem; color:var(--muted); margin-bottom:8px; }
+.galeria-outer {
+  resize: horizontal;
+  overflow: hidden;
+  border: 2px dashed var(--border);
+  border-radius:8px;
+  padding: 8px;
+  min-width: 200px;
+  max-width: 100%;
+  width: 100%;
+}
+
+.galeria-demo {
+  display: grid;
+  gap: 8px;
+}
+
+.foto-demo {
+  border-radius:6px;
+  overflow:hidden;
+  background: #94a3b8;
+  aspect-ratio: 4/3;
+  display:flex; align-items:center; justify-content:center;
+  font-family:monospace; font-size:.7rem; color:rgba(255,255,255,.7); font-weight:600;
+}
+.foto-demo img {
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+
+/* Contador de columnas */
+.col-counter {
+  font-family:monospace; font-size:.82rem; color:var(--accent);
+  margin-top:8px; font-weight:700; text-align:right;
+}
+
+.tabla-valores { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.tabla-valores table { width:100%; border-collapse:collapse; font-size:.84rem; }
+.tabla-valores th { background:var(--bg); padding:8px 14px; text-align:left; font-size:.72rem; font-family:monospace; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+.tabla-valores td { padding:8px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+.tabla-valores tr:last-child td { border-bottom:none; }
+.tabla-valores td:first-child { font-family:monospace; font-weight:700; color:var(--accent); white-space:nowrap; }
+.tabla-valores td:last-child { color:var(--muted); font-size:.82rem; line-height:1.5; }
+
+.info-nota { background:var(--tag-bg); border:1px solid var(--tag-border); border-radius:8px; padding:14px 16px; font-size:.85rem; color:var(--tag-text); line-height:1.6; }
+code.ic { background:rgba(0,0,0,.07); padding:1px 6px; border-radius:4px; font-size:.8rem; }
+
+.default-tag { font-family:system-ui,sans-serif; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.25); border-radius:3px; padding:1px 5px; letter-spacing:.02em; vertical-align:middle; }
+.btn-modo:not(.activo) .default-tag { background:#e4e4e7; color:#71717a; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .header h1 { font-size: 1.1rem; }
+  .galeria-outer {
+    min-width: unset;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Grid Workshop · EJ-06</div>
+  <h1>auto-fit + minmax() — galería responsive sin media queries</h1>
+  <p>El grid ajusta automáticamente el número de columnas según el espacio disponible.</p>
+</div>
+
+<div class="main">
+
+  <aside class="panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Concepto</div>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6">
+        <code class="ic">repeat(auto-fit, minmax(MIN, 1fr))</code> crea todas las columnas
+        que quepan con un mínimo de <strong>MIN</strong> píxeles. Cuando el contenedor se hace
+        más estrecho, las columnas desaparecen y los elementos saltan a la siguiente fila —
+        <strong>sin escribir ni una media query</strong>.
+      </p>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">auto-fit vs auto-fill</div>
+      <div class="modo-wrap">
+        <button class="btn-modo activo" data-modo="auto-fit">auto-fit <span class="default-tag">más común</span></button>
+        <button class="btn-modo" data-modo="auto-fill">auto-fill</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--muted);line-height:1.5;margin-top:8px" id="modo-desc">
+        <strong>auto-fit:</strong> colapsa las columnas vacías. Los elementos existentes
+        se expanden para llenar todo el ancho.
+      </p>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Ajusta minmax()</div>
+      <div class="ctrl">
+        <label>Mínimo (min) <span id="lbl-min">200px</span>
+          <input type="range" id="ctrl-min" min="100" max="400" value="200" step="10">
+        </label>
+        <div class="ctrl-hint">Ancho mínimo de cada columna. Por debajo de este valor el elemento salta a la siguiente fila.</div>
+      </div>
+      <div class="ctrl">
+        <label>Número de fotos <span id="lbl-n">8</span>
+          <input type="range" id="ctrl-n" min="3" max="12" value="8" step="1">
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">CSS resultante</div>
+      <div class="codigo-preview" id="codigoPreview">...</div>
+    </div>
+
+  </aside>
+
+  <div class="viz">
+
+    <div class="demo-wrap">
+      <div class="demo-label">Galería — arrastra el borde derecho para cambiar el ancho</div>
+      <p class="resize-hint">↔ Redimensiona el contenedor para ver cómo cambia el número de columnas automáticamente.</p>
+
+      <div class="galeria-outer" id="galeriaOuter">
+        <div class="galeria-demo" id="galeriaDemo"></div>
+      </div>
+      <div class="col-counter" id="colCounter"></div>
+    </div>
+
+    <div class="tabla-valores">
+      <table>
+        <thead><tr><th>función / valor</th><th>qué hace</th></tr></thead>
+        <tbody>
+          <tr><td>minmax(200px, 1fr)</td><td>Cada columna tiene mínimo 200px y máximo 1fr (reparte el espacio sobrante).</td></tr>
+          <tr><td>auto-fit</td><td>Crea tantas columnas de al menos MIN px como quepan. Colapsa las vacías.</td></tr>
+          <tr><td>auto-fill</td><td>Igual que auto-fit pero mantiene las columnas vacías (reserva el espacio).</td></tr>
+          <tr><td>gap</td><td>Espacio entre filas y columnas. Se tiene en cuenta al calcular cuántas columnas caben.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-nota">
+      <strong>La fórmula mágica para galerías responsive:</strong><br>
+      <code class="ic">grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))</code><br>
+      Una sola línea de CSS hace el trabajo de tres o cuatro media queries.
+    </div>
+
+    <!-- RETO -->
+    <div style="background:#1e1b4b;border-radius:10px;padding:20px 22px;color:#e0e7ff">
+      <div style="font-family:monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;margin-bottom:10px">🎯 Reto — escríbelo tú</div>
+      <p style="font-size:.88rem;line-height:1.7;margin-bottom:14px">
+        Crea <code style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:4px">reto-ej06.html</code>
+        con una galería de <strong>10 fotos reales</strong> usando imágenes de Pexels o Unsplash:
+      </p>
+      <ul style="font-size:.85rem;line-height:2;padding-left:18px;margin-bottom:14px;color:#c7d2fe">
+        <li>Mínimo de columna: <strong>240px</strong></li>
+        <li>Ratio de cada foto: <strong>3/2</strong> (usa <code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px">aspect-ratio</code>)</li>
+        <li>Gap de <strong>12px</strong></li>
+        <li>Las fotos deben cubrir su celda sin deformarse (<code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px">object-fit: cover</code>)</li>
+        <li>Sin ninguna media query</li>
+      </ul>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px 16px;font-family:monospace;font-size:.82rem;line-height:2;color:#c7d2fe">
+        .galeria {<br>
+        &nbsp;&nbsp;display: grid;<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← repeat auto-fit minmax */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← gap */</span><br>
+        }<br>
+        .galeria img {<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← aspect-ratio, object-fit, width */</span><br>
+        }<br><br>
+        <span style="color:#6366f1">/* URL ejemplo Pexels: */</span><br>
+        <span style="color:#6366f1">/* https://images.pexels.com/photos/ID/pexels-photo-ID.jpeg?w=600 */</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Fotos de Pexels (IDs verificados: paisajes/naturaleza)
+  const fotoIds = [417074,346529,1366919,1287145,1133957,247431,33109,414171,36487,268533,462015,167699];
+  const pexelsBase = 'https://images.pexels.com/photos/';
+
+  let minVal = 200;
+  let nFotos = 8;
+  let modoActual = 'auto-fit';
+
+  function buildFotos() {
+    const demo = document.getElementById('galeriaDemo');
+    demo.innerHTML = '';
+    for (let i=0; i<nFotos; i++) {
+      const id = fotoIds[i % fotoIds.length];
+      const div = document.createElement('div');
+      div.className = 'foto-demo';
+      const img = document.createElement('img');
+      img.src = pexelsBase + id + '/pexels-photo-' + id + '.jpeg?auto=compress&w=400';
+      img.alt = 'Foto ' + (i+1);
+      img.loading = 'lazy';
+      div.appendChild(img);
+      demo.appendChild(div);
+    }
+  }
+
+  function update() {
+    const demo = document.getElementById('galeriaDemo');
+    demo.style.gridTemplateColumns = 'repeat(' + modoActual + ', minmax(' + minVal + 'px, 1fr))';
+    demo.style.gap = '8px';
+
+    document.getElementById('lbl-min').textContent = minVal + 'px';
+    document.getElementById('lbl-n').textContent = nFotos;
+
+    // Código
+    document.getElementById('codigoPreview').innerHTML =
+      '<span class="c-pun">.galeria {</span>\n' +
+      '  <span class="c-prop">display</span><span class="c-pun">:</span> <span class="c-val">grid</span><span class="c-pun">;</span>\n' +
+      '  <span class="c-prop">grid-template-columns</span><span class="c-pun">:</span>\n' +
+      '    <span class="c-fn">repeat</span><span class="c-pun">(</span><span class="c-val">' + modoActual + '</span><span class="c-pun">,</span>\n' +
+      '      <span class="c-fn">minmax</span><span class="c-pun">(</span><span class="c-num">' + minVal + 'px</span><span class="c-pun">,</span> <span class="c-val">1fr</span><span class="c-pun">));</span>\n' +
+      '  <span class="c-prop">gap</span><span class="c-pun">:</span> <span class="c-num">8px</span><span class="c-pun">;</span>\n' +
+      '<span class="c-pun">}</span>\n' +
+      '<span class="c-pun">.foto {</span>\n' +
+      '  <span class="c-prop">aspect-ratio</span><span class="c-pun">:</span> <span class="c-val">4 / 3</span><span class="c-pun">;</span>\n' +
+      '  <span class="c-prop">object-fit</span><span class="c-pun">:</span> <span class="c-val">cover</span><span class="c-pun">;</span>\n' +
+      '<span class="c-pun">}</span>';
+
+    // Contador de columnas
+    const outer = document.getElementById('galeriaOuter');
+    const cols = Math.floor(outer.offsetWidth / minVal);
+    document.getElementById('colCounter').textContent = '≈ ' + Math.max(1,cols) + ' columnas con el ancho actual';
+
+    buildFotos();
+  }
+
+  document.getElementById('ctrl-min').addEventListener('input', function() { minVal = +this.value; update(); });
+  document.getElementById('ctrl-n').addEventListener('input', function() { nFotos = +this.value; update(); });
+
+  document.querySelectorAll('[data-modo]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      modoActual = this.dataset.modo;
+      document.querySelectorAll('[data-modo]').forEach(b => b.classList.remove('activo'));
+      this.classList.add('activo');
+      const descs = {
+        'auto-fit': '<strong>auto-fit:</strong> colapsa las columnas vacías. Los elementos existentes se expanden para llenar todo el ancho.',
+        'auto-fill': '<strong>auto-fill:</strong> mantiene las columnas vacías reservadas. Los elementos no se expanden más de su tamaño máximo.'
+      };
+      document.getElementById('modo-desc').innerHTML = descs[modoActual];
+      update();
+    });
+  });
+
+  // Redimensión del outer
+  const ro = new ResizeObserver(() => {
+    const outer = document.getElementById('galeriaOuter');
+    const cols = Math.floor(outer.offsetWidth / minVal);
+    document.getElementById('colCounter').textContent = '≈ ' + Math.max(1,cols) + ' columnas con el ancho actual';
+  });
+  ro.observe(document.getElementById('galeriaOuter'));
+
+  update();
+</script>
+
+</body>
+</html>

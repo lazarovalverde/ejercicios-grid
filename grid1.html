@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid EJ-01 · place-items</title>
+<style>
+:root {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --muted: #71717a;
+  --accent: #3b82f6;
+  --accent-soft: #eff6ff;
+  --cell-bg: #d4d4d8;
+  --box-bg: #3b82f6;
+  --tag-bg: #f0fdf4;
+  --tag-border: #bbf7d0;
+  --tag-text: #15803d;
+  --warn-bg: #fefce8;
+  --warn-border: #fde047;
+  --warn-text: #713f12;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+/* ── Cabecera ── */
+.header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px 16px;
+  margin-bottom: 24px;
+}
+.header-badge {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.header p {
+  font-size: .88rem;
+  color: var(--muted);
+}
+
+/* ── Layout principal ── */
+.main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  padding: 0 24px;
+  align-items: start;
+}
+
+/* ── Panel de controles ── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.panel-section {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-section:last-child { border-bottom: none; }
+.panel-label {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.prop-name {
+  font-family: monospace;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.prop-applies {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* Botones de valor */
+.valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn-valor {
+  font-family: monospace;
+  font-size: .8rem;
+  padding: 5px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+}
+.btn-valor:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.btn-valor.activo {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Código generado */
+.codigo-preview {
+  background: #18181b;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: monospace;
+  font-size: .82rem;
+  line-height: 1.8;
+  color: #e4e4e7;
+  margin-top: 4px;
+}
+.codigo-preview .c-prop { color: #93c5fd; }
+.codigo-preview .c-val  { color: #86efac; }
+.codigo-preview .c-pun  { color: #71717a; }
+
+/* Aviso de tamaño */
+.aviso-size {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: .82rem;
+  color: var(--warn-text);
+  line-height: 1.5;
+}
+
+/* Pasos */
+.pasos-lista {
+  list-style: none;
+  counter-reset: paso;
+}
+.pasos-lista li {
+  counter-increment: paso;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: .85rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.pasos-lista li:last-child { margin-bottom: 0; }
+.pasos-lista li::before {
+  content: counter(paso);
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.pasos-lista code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: .8rem;
+}
+
+/* ── Zona de visualización ── */
+.viz {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Tabla de valores */
+.tabla-valores {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tabla-valores table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .84rem;
+}
+.tabla-valores th {
+  background: var(--bg);
+  padding: 8px 14px;
+  text-align: left;
+  font-size: .72rem;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.tabla-valores td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.tabla-valores tr:last-child td { border-bottom: none; }
+.tabla-valores td:first-child {
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.tabla-valores td:last-child {
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+/* Grid demo */
+.demo-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+.demo-label {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.contenedor-demo {
+  display: grid;
+  grid-template-columns: repeat(3, 160px);
+  grid-template-rows: repeat(3, 120px);
+  gap: 6px;
+  background: var(--cell-bg);
+  padding: 6px;
+  border-radius: 6px;
+  width: fit-content;
+  /* justify-items y align-items se aplican vía JS */
+}
+
+.caja-demo {
+  background: var(--box-bg);
+  color: #fff;
+  font-family: monospace;
+  font-size: .85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  /* SIN width ni height: ocupa toda la celda */
+  transition: all .2s;
+}
+
+/* Estado "con tamaño" */
+.caja-demo.con-size {
+  width: 80px;
+  height: 60px;
+}
+
+/* Toggle tamaño */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: .85rem;
+}
+.toggle-label {
+  font-family: monospace;
+  font-size: .82rem;
+  color: var(--text);
+}
+.toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left .2s;
+}
+.toggle input:checked + .toggle-track::after { left: 21px; }
+
+.default-tag {
+  font-family: system-ui, sans-serif;
+  font-size: .68rem;
+  font-weight: 600;
+  background: rgba(255,255,255,.25);
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: .02em;
+  vertical-align: middle;
+}
+.btn-valor:not(.activo) .default-tag {
+  background: #e4e4e7;
+  color: #71717a;
+}
+
+.size-info {
+  font-size: .78rem;
+  color: var(--muted);
+}
+.size-info strong { color: var(--text); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .header h1 { font-size: 1.1rem; }
+  .contenedor-demo {
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 80px);
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Grid Workshop · EJ-01</div>
+  <h1>justify-items / align-items / place-items</h1>
+  <p>¿Qué ocurre cuando la caja es más pequeña que su celda?</p>
+</div>
+
+<div class="main">
+
+  <!-- ── Panel de controles ── -->
+  <aside class="panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Paso 1 — activa el tamaño</div>
+      <p style="font-size:.84rem;color:var(--muted);line-height:1.6;margin-bottom:12px;">
+        Para que <code style="font-size:.8rem;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px">justify-items</code> tenga efecto, la caja debe ser
+        <strong>más pequeña que su celda</strong>. Activa el interruptor y observa.
+      </p>
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="toggleSize">
+          <span class="toggle-track"></span>
+        </label>
+        <span class="toggle-label">Añadir <code style="font-size:.8rem">width: 80px; height: 60px</code></span>
+      </div>
+      <div class="aviso-size" id="avisoSize">
+        ⚠ Sin tamaño fijo la caja se estira (<code>stretch</code> por defecto)
+        y <strong>ocupa toda la celda</strong>. Las propiedades de alineación no tienen efecto visible.
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Paso 2 — prueba los valores</div>
+
+      <div class="prop-name">justify-items</div>
+      <div class="prop-applies">eje horizontal (dentro de la celda)</div>
+      <div class="valores" id="btns-ji">
+        <button class="btn-valor activo" data-prop="ji" data-val="stretch">stretch <span class="default-tag">por defecto</span></button>
+        <button class="btn-valor" data-prop="ji" data-val="start">start</button>
+        <button class="btn-valor" data-prop="ji" data-val="center">center</button>
+        <button class="btn-valor" data-prop="ji" data-val="end">end</button>
+      </div>
+
+      <div class="prop-name" style="margin-top:16px">align-items</div>
+      <div class="prop-applies">eje vertical (dentro de la celda)</div>
+      <div class="valores" id="btns-ai">
+        <button class="btn-valor activo" data-prop="ai" data-val="stretch">stretch <span class="default-tag">por defecto</span></button>
+        <button class="btn-valor" data-prop="ai" data-val="start">start</button>
+        <button class="btn-valor" data-prop="ai" data-val="center">center</button>
+        <button class="btn-valor" data-prop="ai" data-val="end">end</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">CSS resultante</div>
+      <div class="codigo-preview" id="codigoPreview">
+        <span class="c-pun">.contenedor {</span><br>
+        &nbsp;&nbsp;<span class="c-prop">justify-items</span><span class="c-pun">: </span><span class="c-val" id="cv-ji">stretch</span><span class="c-pun">;</span><br>
+        &nbsp;&nbsp;<span class="c-prop">align-items</span><span class="c-pun">: </span><span class="c-val" id="cv-ai">stretch</span><span class="c-pun">;</span><br>
+        <span class="c-pun">}</span><br><br>
+        <span class="c-pun">.caja {</span><br>
+        &nbsp;&nbsp;<span class="c-prop" id="cv-w-prop" style="display:none">width</span><span class="c-pun" id="cv-w-pun" style="display:none">: </span><span class="c-val" id="cv-w-val" style="display:none">80px</span><span class="c-pun" id="cv-w-sc" style="display:none">;</span><br>
+        &nbsp;&nbsp;<span class="c-prop" id="cv-h-prop" style="display:none">height</span><span class="c-pun" id="cv-h-pun" style="display:none">: </span><span class="c-val" id="cv-h-val" style="display:none">60px</span><span class="c-pun" id="cv-h-sc" style="display:none">;</span><br>
+        <span class="c-pun">}</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Paso 3 — place-items</div>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:10px;">
+        <code style="font-size:.8rem;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px">place-items</code> es el shorthand de ambas propiedades:<br>
+        <code style="font-size:.8rem;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px">place-items: &lt;align-items&gt; &lt;justify-items&gt;</code>
+      </p>
+      <div class="valores">
+        <button class="btn-valor" id="btn-place-center" onclick="setPlaceItems('center')">place-items: center</button>
+        <button class="btn-valor" id="btn-place-end-start" onclick="setPlaceItems('end start')">place-items: end start</button>
+        <button class="btn-valor" id="btn-place-stretch" onclick="setPlaceItems('stretch')">place-items: stretch</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Visualización ── -->
+  <div class="viz">
+
+    <!-- Grid demo -->
+    <div class="demo-wrap">
+      <div class="demo-label">Vista previa — celda: 160 × 120 px · caja: <span id="sizeLbl">stretch (llena la celda)</span></div>
+      <div class="contenedor-demo" id="gridDemo">
+        <div class="caja-demo">1</div>
+        <div class="caja-demo">2</div>
+        <div class="caja-demo">3</div>
+        <div class="caja-demo">4</div>
+        <div class="caja-demo">5</div>
+        <div class="caja-demo">6</div>
+        <div class="caja-demo">7</div>
+        <div class="caja-demo">8</div>
+        <div class="caja-demo">9</div>
+      </div>
+    </div>
+
+    <!-- Tabla de valores -->
+    <div class="tabla-valores">
+      <table>
+        <thead>
+          <tr>
+            <th>valor</th>
+            <th>qué hace</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>stretch</td>
+            <td>La caja ocupa todo el ancho (o alto) de la celda. Es el valor por defecto.</td>
+          </tr>
+          <tr>
+            <td>start</td>
+            <td>La caja se sitúa al inicio de la celda (izquierda en <em>justify</em>, arriba en <em>align</em>).</td>
+          </tr>
+          <tr>
+            <td>center</td>
+            <td>La caja se centra dentro de la celda.</td>
+          </tr>
+          <tr>
+            <td>end</td>
+            <td>La caja se sitúa al final de la celda (derecha o abajo).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Nota clave -->
+    <div style="background:var(--tag-bg);border:1px solid var(--tag-border);border-radius:8px;padding:14px 16px;font-size:.85rem;color:var(--tag-text);line-height:1.6">
+      <strong>Regla clave:</strong> <code style="background:rgba(0,0,0,.07);padding:1px 6px;border-radius:4px;font-size:.8rem">justify-items</code> y <code style="background:rgba(0,0,0,.07);padding:1px 6px;border-radius:4px;font-size:.8rem">align-items</code>
+      solo tienen efecto visible cuando la caja es <strong>más pequeña que su celda</strong>.
+      Si la caja se estira para llenar la celda (valor <em>stretch</em>), no hay espacio libre dentro de la celda y la alineación no cambia nada.
+    </div>
+
+    <!-- ── RETO ── -->
+    <div style="background:#1e1b4b;border-radius:10px;padding:20px 22px;color:#e0e7ff">
+      <div style="font-family:monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;margin-bottom:10px">🎯 Reto — escríbelo tú</div>
+      <p style="font-size:.88rem;line-height:1.7;margin-bottom:14px">
+        Crea un nuevo archivo <code style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:4px">reto-ej01.html</code> con un grid de <strong>4 columnas × 2 filas</strong>.
+        Las celdas deben medir <strong>120 × 100 px</strong>.<br>
+        Consigue que todas las cajas queden <strong>pegadas abajo a la derecha</strong> de su celda,
+        con un tamaño de <strong>60 × 50 px</strong>.
+      </p>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px 16px;font-family:monospace;font-size:.82rem;line-height:2;color:#c7d2fe">
+        <span style="color:#6366f1">/* punto de partida */</span><br>
+        .contenedor {<br>
+        &nbsp;&nbsp;display: grid;<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← 4 columnas de 120px */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← 2 filas de 100px */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← gap de 8px */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← alineación: abajo a la derecha */</span><br>
+        }<br>
+        .caja {<br>
+        &nbsp;&nbsp;background: #f59e0b;<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← tamaño: 60 × 50px */</span><br>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let jiVal = 'stretch';
+  let aiVal = 'stretch';
+  let conSize = false;
+
+  const grid = document.getElementById('gridDemo');
+  const cajas = grid.querySelectorAll('.caja-demo');
+
+  function update() {
+    // Aplica las propiedades al grid
+    grid.style.justifyItems = jiVal;
+    grid.style.alignItems = aiVal;
+
+    // Aplica o quita el tamaño a las cajas
+    cajas.forEach(c => {
+      if (conSize) {
+        c.classList.add('con-size');
+      } else {
+        c.classList.remove('con-size');
+      }
+    });
+
+    // Actualiza el código CSS
+    document.getElementById('cv-ji').textContent = jiVal;
+    document.getElementById('cv-ai').textContent = aiVal;
+
+    const tns = ['cv-w-prop','cv-w-pun','cv-w-val','cv-w-sc','cv-h-prop','cv-h-pun','cv-h-val','cv-h-sc'];
+    tns.forEach(id => {
+      document.getElementById(id).style.display = conSize ? 'inline' : 'none';
+    });
+
+    // Label tamaño
+    document.getElementById('sizeLbl').textContent = conSize
+      ? '80 × 60 px'
+      : 'stretch (llena la celda)';
+
+    // Aviso
+    document.getElementById('avisoSize').style.display = conSize ? 'none' : '';
+  }
+
+  // Toggle tamaño
+  document.getElementById('toggleSize').addEventListener('change', function() {
+    conSize = this.checked;
+    update();
+  });
+
+  // Botones de justify-items
+  document.querySelectorAll('[data-prop="ji"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-prop="ji"]').forEach(b => b.classList.remove('activo'));
+      this.classList.add('activo');
+      jiVal = this.dataset.val;
+      update();
+    });
+  });
+
+  // Botones de align-items
+  document.querySelectorAll('[data-prop="ai"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-prop="ai"]').forEach(b => b.classList.remove('activo'));
+      this.classList.add('activo');
+      aiVal = this.dataset.val;
+      update();
+    });
+  });
+
+  // place-items shortcuts
+  function setPlaceItems(val) {
+    const parts = val.split(' ');
+    aiVal = parts[0];
+    jiVal = parts[1] || parts[0];
+
+    // Activa el toggle de tamaño automáticamente si no está
+    if (!conSize) {
+      conSize = true;
+      document.getElementById('toggleSize').checked = true;
+    }
+
+    // Actualiza botones visualmente
+    document.querySelectorAll('[data-prop="ji"]').forEach(b => {
+      b.classList.toggle('activo', b.dataset.val === jiVal);
+    });
+    document.querySelectorAll('[data-prop="ai"]').forEach(b => {
+      b.classList.toggle('activo', b.dataset.val === aiVal);
+    });
+
+    update();
+  }
+
+  update();
+</script>
+
+</body>
+</html>

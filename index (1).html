@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid Workshop — DIW</title>
+<style>
+:root {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --muted: #71717a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* Cabecera */
+.hero {
+  background: #18181b;
+  color: #fff;
+  padding: 48px 24px 40px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-block;
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: #a3e635;
+  background: rgba(163,230,53,.12);
+  border: 1px solid rgba(163,230,53,.3);
+  border-radius: 999px;
+  padding: 4px 14px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.hero p {
+  color: #a1a1aa;
+  font-size: .95rem;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Grid de tarjetas */
+.ejercicios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 36px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Tarjeta */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .18s, transform .18s;
+  text-decoration: none;
+  color: inherit;
+}
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.1);
+  transform: translateY(-2px);
+}
+
+/* Franja de color superior */
+.card-stripe {
+  height: 5px;
+}
+
+.card-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-num {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.card-props {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.prop-tag {
+  font-family: monospace;
+  font-size: .72rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.card-desc {
+  font-size: .84rem;
+  color: var(--muted);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.card-link {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .84rem;
+  font-weight: 600;
+  color: inherit;
+  opacity: .6;
+}
+.card-link svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Colores por ejercicio */
+.ej1 .card-stripe { background: #3b82f6; }
+.ej1 .prop-tag { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.ej1 .card-link { color: #3b82f6; opacity: 1; }
+
+.ej2 .card-stripe { background: #8b5cf6; }
+.ej2 .prop-tag { background: #f5f3ff; border-color: #ddd6fe; color: #6d28d9; }
+.ej2 .card-link { color: #8b5cf6; opacity: 1; }
+
+.ej3 .card-stripe { background: #ef4444; }
+.ej3 .prop-tag { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.ej3 .card-link { color: #ef4444; opacity: 1; }
+
+.ej4 .card-stripe { background: #f59e0b; }
+.ej4 .prop-tag { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+.ej4 .card-link { color: #d97706; opacity: 1; }
+
+.ej5 .card-stripe { background: #10b981; }
+.ej5 .prop-tag { background: #f0fdf4; border-color: #bbf7d0; color: #065f46; }
+.ej5 .card-link { color: #10b981; opacity: 1; }
+
+.ej6 .card-stripe { background: #0ea5e9; }
+.ej6 .prop-tag { background: #f0f9ff; border-color: #bae6fd; color: #0369a1; }
+.ej6 .card-link { color: #0ea5e9; opacity: 1; }
+
+/* Pie */
+.footer {
+  text-align: center;
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 1.5rem; }
+  .ejercicios { padding: 20px 16px; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Diseño de Interfaces Web · 2º DAW</div>
+  <h1>Grid Workshop</h1>
+  <p>Seis ejercicios interactivos para dominar CSS Grid paso a paso.
+     Explora cada propiedad y consolida lo aprendido con el reto final.</p>
+</div>
+
+<div class="ejercicios">
+
+  <a class="card ej1" href="grid1.html">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-num">EJ-01</div>
+      <div class="card-title">Alineación de cajas dentro de la celda</div>
+      <div class="card-props">
+        <span class="prop-tag">justify-items</span>
+        <span class="prop-tag">align-items</span>
+        <span class="prop-tag">place-items</span>
+      </div>
+      <div class="card-desc">
+        Descubre qué ocurre cuando la caja es más pequeña que su celda.
+        Controla su posición en el eje horizontal y vertical.
+      </div>
+      <span class="card-link">Abrir ejercicio <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    </div>
+  </a>
+
+  <a class="card ej2" href="grid2.html">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-num">EJ-02</div>
+      <div class="card-title">Distribución de pistas en el contenedor</div>
+      <div class="card-props">
+        <span class="prop-tag">justify-content</span>
+        <span class="prop-tag">align-content</span>
+        <span class="prop-tag">place-content</span>
+      </div>
+      <div class="card-desc">
+        Cuando las pistas tienen tamaño fijo, el contenedor puede tener espacio sobrante.
+        Distribuye ese espacio libre entre columnas y filas.
+      </div>
+      <span class="card-link">Abrir ejercicio <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    </div>
+  </a>
+
+  <a class="card ej3" href="grid3.html">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-num">EJ-03</div>
+      <div class="card-title">Posición con líneas de grid</div>
+      <div class="card-props">
+        <span class="prop-tag">grid-column</span>
+        <span class="prop-tag">grid-row</span>
+      </div>
+      <div class="card-desc">
+        Coloca cada elemento usando números de línea absolutos.
+        Aprende a usar líneas negativas para contar desde el final.
+      </div>
+      <span class="card-link">Abrir ejercicio <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    </div>
+  </a>
+
+  <a class="card ej4" href="grid4.html">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-num">EJ-04</div>
+      <div class="card-title">La palabra clave span</div>
+      <div class="card-props">
+        <span class="prop-tag">span</span>
+        <span class="prop-tag">grid-column</span>
+        <span class="prop-tag">grid-row</span>
+      </div>
+      <div class="card-desc">
+        Compara tres formas equivalentes de expresar el mismo span:
+        línea/línea, línea/span y solo span con colocación automática.
+      </div>
+      <span class="card-link">Abrir ejercicio <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    </div>
+  </a>
+
+  <a class="card ej5" href="grid5.html">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-num">EJ-05</div>
+      <div class="card-title">Mapa de áreas</div>
+      <div class="card-props">
+        <span class="prop-tag">grid-template-areas</span>
+        <span class="prop-tag">grid-area</span>
+      </div>
+      <div class="card-desc">
+        Dibuja el layout de la página con cadenas de texto.
+        Asigna cada zona por nombre y observa el resultado en tiempo real.
+      </div>
+      <span class="card-link">Abrir ejercicio <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    </div>
+  </a>
+
+  <a class="card ej6" href="grid6.html">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-num">EJ-06</div>
+      <div class="card-title">Galería responsive sin media queries</div>
+      <div class="card-props">
+        <span class="prop-tag">auto-fit</span>
+        <span class="prop-tag">minmax()</span>
+        <span class="prop-tag">repeat()</span>
+      </div>
+      <div class="card-desc">
+        Una sola línea de CSS ajusta automáticamente el número de columnas
+        según el ancho del contenedor. Sin media queries.
+      </div>
+      <span class="card-link">Abrir ejercicio <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer">Grid Workshop · DIW 2º DAW</div>
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid EJ-03 · Números de línea</title>
+<style>
+:root {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --muted: #71717a;
+  --accent: #ef4444;
+  --accent-soft: #fef2f2;
+  --cell-bg: #d4d4d8;
+  --tag-bg: #f0fdf4;
+  --tag-border: #bbf7d0;
+  --tag-text: #15803d;
+  --line-color: #ef4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0 0 60px;
+}
+
+.header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px 16px;
+  margin-bottom: 24px;
+}
+.header-badge {
+  font-family: monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.header h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+.header p  { font-size: .88rem; color: var(--muted); }
+
+.main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  padding: 0 24px;
+  align-items: start;
+}
+
+/* Panel */
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.panel-section { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+.panel-section:last-child { border-bottom: none; }
+.panel-label {
+  font-family: monospace; font-size: .72rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+}
+
+/* Selector de elemento */
+.elem-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn-elem {
+  font-family: monospace; font-size: .8rem; padding: 6px 12px;
+  border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text); cursor: pointer; transition: all .15s;
+}
+.btn-elem:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.btn-elem.activo { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+/* Controles de línea */
+.linea-ctrl { margin-bottom: 14px; }
+.linea-ctrl label {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: .84rem; margin-bottom: 6px;
+}
+.linea-ctrl label span { font-family: monospace; color: var(--accent); font-weight: 700; }
+.linea-ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+.linea-hint { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+/* Código */
+.codigo-preview {
+  background: #18181b; border-radius: 8px; padding: 14px 16px;
+  font-family: monospace; font-size: .82rem; line-height: 1.9; color: #e4e4e7;
+}
+.c-sel  { color: #fca5a5; }
+.c-prop { color: #fda4af; }
+.c-val  { color: #86efac; }
+.c-pun  { color: #71717a; }
+.c-cmt  { color: #4b5563; font-style: italic; }
+
+/* Viz */
+.viz { display: flex; flex-direction: column; gap: 16px; }
+.demo-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.demo-label {
+  font-family: monospace; font-size: .72rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+
+/* Grid de 4 columnas × 3 filas */
+.grid-wrap { position: relative; display: inline-block; }
+
+.contenedor-demo {
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+  grid-template-rows: repeat(3, 80px);
+  gap: 6px;
+  background: var(--cell-bg);
+  padding: 6px;
+  border-radius: 6px;
+  position: relative;
+}
+
+.caja-demo {
+  background: #d1d5db;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: monospace; font-size: .75rem; color: #6b7280; font-weight: 600;
+  transition: all .25s;
+}
+
+/* Colores por elemento activo */
+.caja-demo.highlight-A { background: #ef4444; color: #fff; z-index: 2; }
+.caja-demo.highlight-B { background: #f97316; color: #fff; z-index: 2; }
+.caja-demo.highlight-C { background: #8b5cf6; color: #fff; z-index: 2; }
+
+/* Números de línea superpuestos */
+.lineas-col, .lineas-row {
+  position: absolute; pointer-events: none;
+}
+.num-linea {
+  position: absolute;
+  font-family: monospace; font-size: .65rem; font-weight: 700;
+  color: var(--line-color);
+  background: white;
+  border: 1.5px solid var(--line-color);
+  border-radius: 3px;
+  padding: 1px 4px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Tabla */
+.tabla-valores { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.tabla-valores table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.tabla-valores th {
+  background: var(--bg); padding: 8px 14px; text-align: left;
+  font-size: .72rem; font-family: monospace; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.tabla-valores td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tabla-valores tr:last-child td { border-bottom: none; }
+.tabla-valores td:first-child { font-family: monospace; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.tabla-valores td:last-child { color: var(--muted); font-size: .82rem; line-height: 1.5; }
+
+.info-nota {
+  background: var(--tag-bg); border: 1px solid var(--tag-border);
+  border-radius: 8px; padding: 14px 16px; font-size: .85rem; color: var(--tag-text); line-height: 1.6;
+}
+code.ic { background: rgba(0,0,0,.07); padding: 1px 6px; border-radius: 4px; font-size: .8rem; }
+
+.default-tag {
+  font-family: system-ui, sans-serif; font-size: .68rem; font-weight: 600;
+  background: rgba(255,255,255,.25); border-radius: 3px; padding: 1px 5px;
+  letter-spacing: .02em; vertical-align: middle;
+}
+.btn-elem:not(.activo) .default-tag { background: #e4e4e7; color: #71717a; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .header h1 { font-size: 1.1rem; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Grid Workshop · EJ-03</div>
+  <h1>Números de línea — grid-column / grid-row</h1>
+  <p>Coloca un elemento en posición exacta usando los números de las líneas del grid.</p>
+</div>
+
+<div class="main">
+
+  <!-- Panel -->
+  <aside class="panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Concepto</div>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6">
+        CSS Grid numera sus líneas empezando en <strong>1</strong>. Un grid de 4 columnas
+        tiene líneas de columna <strong>1 a 5</strong>. Con <code class="ic">grid-column: inicio / fin</code>
+        le dices al elemento entre qué líneas debe colocarse.<br><br>
+        También puedes usar números <strong>negativos</strong>: <code class="ic">-1</code> es la última línea,
+        <code class="ic">-2</code> la penúltima, etc.
+      </p>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Elige el elemento</div>
+      <div class="elem-btns">
+        <button class="btn-elem activo" data-elem="A" style="border-color:#ef4444;background:#ef4444;color:#fff">Elemento A</button>
+        <button class="btn-elem" data-elem="B" style="">Elemento B</button>
+        <button class="btn-elem" data-elem="C" style="">Elemento C</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">grid-column</div>
+      <div class="linea-ctrl">
+        <label>Inicio <span id="lbl-col-start">1</span>
+          <input type="range" id="col-start" min="-5" max="5" value="1" step="1">
+        </label>
+        <label>Fin <span id="lbl-col-end">2</span>
+          <input type="range" id="col-end" min="-5" max="5" value="2" step="1">
+        </label>
+        <div class="linea-hint">Rango: 1 a 5 (o -5 a -1 desde el final)</div>
+      </div>
+
+      <div class="panel-label" style="margin-top:4px">grid-row</div>
+      <div class="linea-ctrl">
+        <label>Inicio <span id="lbl-row-start">1</span>
+          <input type="range" id="row-start" min="-4" max="4" value="1" step="1">
+        </label>
+        <label>Fin <span id="lbl-row-end">2</span>
+          <input type="range" id="row-end" min="-4" max="4" value="2" step="1">
+        </label>
+        <div class="linea-hint">Rango: 1 a 4 (o -4 a -1 desde el final)</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">CSS resultante</div>
+      <div class="codigo-preview">
+        <span class="c-cmt">/* Elemento A (rojo) */</span><br>
+        <span class="c-sel">.A</span> <span class="c-pun">{</span><br>
+        &nbsp;&nbsp;<span class="c-prop">grid-column</span><span class="c-pun">: </span><span class="c-val" id="cv-A-col">1 / 2</span><span class="c-pun">;</span><br>
+        &nbsp;&nbsp;<span class="c-prop">grid-row</span><span class="c-pun">: </span><span class="c-val" id="cv-A-row">1 / 2</span><span class="c-pun">;</span><br>
+        <span class="c-pun">}</span><br>
+        <span class="c-cmt">/* Elemento B (naranja) */</span><br>
+        <span class="c-sel">.B</span> <span class="c-pun">{</span><br>
+        &nbsp;&nbsp;<span class="c-prop">grid-column</span><span class="c-pun">: </span><span class="c-val" id="cv-B-col">1 / 2</span><span class="c-pun">;</span><br>
+        &nbsp;&nbsp;<span class="c-prop">grid-row</span><span class="c-pun">: </span><span class="c-val" id="cv-B-row">1 / 2</span><span class="c-pun">;</span><br>
+        <span class="c-pun">}</span><br>
+        <span class="c-cmt">/* Elemento C (morado) */</span><br>
+        <span class="c-sel">.C</span> <span class="c-pun">{</span><br>
+        &nbsp;&nbsp;<span class="c-prop">grid-column</span><span class="c-pun">: </span><span class="c-val" id="cv-C-col">1 / 2</span><span class="c-pun">;</span><br>
+        &nbsp;&nbsp;<span class="c-prop">grid-row</span><span class="c-pun">: </span><span class="c-val" id="cv-C-row">1 / 2</span><span class="c-pun">;</span><br>
+        <span class="c-pun">}</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Viz -->
+  <div class="viz">
+
+    <div class="demo-wrap">
+      <div class="demo-label">Grid 4 col × 3 fil — líneas de col: 1…5 · líneas de fila: 1…4</div>
+
+      <!-- Números de línea columnas (arriba) -->
+      <div style="display:flex;gap:6px;padding:0 6px;margin-bottom:3px">
+        <div style="width:6px"></div>
+        <div style="display:flex;gap:6px">
+          <div style="width:100px;text-align:left;font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700;padding-left:0">1</div>
+          <div style="width:100px;text-align:left;font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700">2</div>
+          <div style="width:100px;text-align:left;font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700">3</div>
+          <div style="width:100px;text-align:left;font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700">4</div>
+          <div style="font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700">5</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <!-- Números de línea filas (izquierda) -->
+        <div style="display:flex;flex-direction:column;gap:6px;padding:6px 0">
+          <div style="height:80px;display:flex;align-items:flex-start;padding-top:0">
+            <span style="font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700;line-height:1">1</span>
+          </div>
+          <div style="height:80px;display:flex;align-items:flex-start">
+            <span style="font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700;line-height:1">2</span>
+          </div>
+          <div style="height:80px;display:flex;align-items:flex-start">
+            <span style="font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700;line-height:1">3</span>
+          </div>
+          <div style="display:flex;align-items:flex-start">
+            <span style="font-family:monospace;font-size:.65rem;color:var(--line-color);font-weight:700;line-height:1">4</span>
+          </div>
+        </div>
+
+        <div class="contenedor-demo" id="gridDemo">
+          <!-- 12 celdas = 4×3, las tres destacadas son A B C -->
+          <div class="caja-demo highlight-A" id="box-A" style="grid-column:1/2;grid-row:1/2">A</div>
+          <div class="caja-demo highlight-B" id="box-B" style="grid-column:2/3;grid-row:1/2">B</div>
+          <div class="caja-demo highlight-C" id="box-C" style="grid-column:3/4;grid-row:1/2">C</div>
+          <div class="caja-demo">·</div>
+          <div class="caja-demo">·</div>
+          <div class="caja-demo">·</div>
+          <div class="caja-demo">·</div>
+          <div class="caja-demo">·</div>
+          <div class="caja-demo">·</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabla-valores">
+      <table>
+        <thead><tr><th>sintaxis</th><th>significado</th></tr></thead>
+        <tbody>
+          <tr><td>grid-column: 1 / 3</td><td>Desde la línea de col 1 hasta la línea de col 3 (ocupa 2 columnas).</td></tr>
+          <tr><td>grid-column: 2 / -1</td><td>Desde la línea 2 hasta el final (línea -1 = última).</td></tr>
+          <tr><td>grid-row: 1 / 3</td><td>Desde la línea de fila 1 hasta la 3 (ocupa 2 filas).</td></tr>
+          <tr><td>grid-column: 1 / 2</td><td>Una sola columna. Equivale al valor <strong>por defecto</strong> (auto).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-nota">
+      <strong>Recuerda:</strong> el número indica la <em>línea</em>, no la columna.
+      Un elemento que va de la línea 1 a la 3 ocupa <strong>2 columnas</strong>, no 3.
+    </div>
+
+    <!-- RETO -->
+    <div style="background:#1e1b4b;border-radius:10px;padding:20px 22px;color:#e0e7ff">
+      <div style="font-family:monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;margin-bottom:10px">🎯 Reto — escríbelo tú</div>
+      <p style="font-size:.88rem;line-height:1.7;margin-bottom:14px">
+        Crea un archivo <code style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:4px">reto-ej03.html</code>
+        con un grid de <strong>3 columnas × 3 filas</strong> (celdas de 120 × 100px, gap 8px)
+        y coloca tres elementos con estas posiciones exactas:
+      </p>
+      <ul style="font-size:.85rem;line-height:2;padding-left:18px;margin-bottom:14px;color:#c7d2fe">
+        <li><strong style="color:#f87171">Elemento A</strong> — ocupa toda la primera fila (de col 1 a col 4)</li>
+        <li><strong style="color:#fb923c">Elemento B</strong> — columna 1, filas 2 y 3</li>
+        <li><strong style="color:#a78bfa">Elemento C</strong> — columnas 2 y 3, fila 2</li>
+        <li>El resto de celdas se rellenan con divs neutros</li>
+      </ul>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px 16px;font-family:monospace;font-size:.82rem;line-height:2;color:#c7d2fe">
+        <span style="color:#6366f1">/* punto de partida */</span><br>
+        .contenedor {<br>
+        &nbsp;&nbsp;display: grid;<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← 3 columnas de 120px */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← 3 filas de 100px */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← gap */</span><br>
+        }<br>
+        .A { <span style="color:#818cf8">/* grid-column y grid-row */</span> }<br>
+        .B { <span style="color:#818cf8">/* grid-column y grid-row */</span> }<br>
+        .C { <span style="color:#818cf8">/* grid-column y grid-row */</span> }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Estado: posición de cada elemento
+  const estado = {
+    A: { colStart: 1, colEnd: 2, rowStart: 1, rowEnd: 2 },
+    B: { colStart: 2, colEnd: 3, rowStart: 1, rowEnd: 2 },
+    C: { colStart: 3, colEnd: 4, rowStart: 1, rowEnd: 2 },
+  };
+  let elemActivo = 'A';
+
+  const inputs = {
+    colStart: document.getElementById('col-start'),
+    colEnd:   document.getElementById('col-end'),
+    rowStart: document.getElementById('row-start'),
+    rowEnd:   document.getElementById('row-end'),
+  };
+  const labels = {
+    colStart: document.getElementById('lbl-col-start'),
+    colEnd:   document.getElementById('lbl-col-end'),
+    rowStart: document.getElementById('lbl-row-start'),
+    rowEnd:   document.getElementById('lbl-row-end'),
+  };
+
+  function cargarEstado() {
+    const e = estado[elemActivo];
+    inputs.colStart.value = e.colStart;
+    inputs.colEnd.value   = e.colEnd;
+    inputs.rowStart.value = e.rowStart;
+    inputs.rowEnd.value   = e.rowEnd;
+    actualizarLabels();
+  }
+
+  function actualizarLabels() {
+    const e = estado[elemActivo];
+    labels.colStart.textContent = e.colStart;
+    labels.colEnd.textContent   = e.colEnd;
+    labels.rowStart.textContent = e.rowStart;
+    labels.rowEnd.textContent   = e.rowEnd;
+  }
+
+  function aplicarGrid() {
+    ['A','B','C'].forEach(id => {
+      const e = estado[id];
+      const box = document.getElementById('box-' + id);
+      box.style.gridColumn = e.colStart + ' / ' + e.colEnd;
+      box.style.gridRow    = e.rowStart + ' / ' + e.rowEnd;
+      document.getElementById('cv-' + id + '-col').textContent = e.colStart + ' / ' + e.colEnd;
+      document.getElementById('cv-' + id + '-row').textContent = e.rowStart + ' / ' + e.rowEnd;
+    });
+  }
+
+  // Sliders
+  ['colStart','colEnd','rowStart','rowEnd'].forEach(key => {
+    inputs[key].addEventListener('input', function() {
+      estado[elemActivo][key] = parseInt(this.value);
+      actualizarLabels();
+      aplicarGrid();
+    });
+  });
+
+  // Botones elemento
+  document.querySelectorAll('[data-elem]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      elemActivo = this.dataset.elem;
+      document.querySelectorAll('[data-elem]').forEach(b => {
+        b.classList.remove('activo');
+        b.style.borderColor = '';
+        b.style.background = '';
+        b.style.color = '';
+      });
+      const colores = { A: '#ef4444', B: '#f97316', C: '#8b5cf6' };
+      this.classList.add('activo');
+      this.style.borderColor = colores[elemActivo];
+      this.style.background  = colores[elemActivo];
+      this.style.color = '#fff';
+      cargarEstado();
+    });
+  });
+
+  cargarEstado();
+  aplicarGrid();
+</script>
+
+</body>
+</html>

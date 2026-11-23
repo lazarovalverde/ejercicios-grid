@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid EJ-05 · grid-template-areas</title>
+<style>
+:root {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --muted: #71717a;
+  --accent: #10b981;
+  --accent-soft: #f0fdf4;
+  --cell-bg: #d4d4d8;
+  --tag-bg: #fefce8;
+  --tag-border: #fde047;
+  --tag-text: #713f12;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); padding:0 0 60px; }
+
+.header { background:var(--panel); border-bottom:1px solid var(--border); padding:20px 24px 16px; margin-bottom:24px; }
+.header-badge { font-family:monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); padding:3px 10px; border-radius:999px; display:inline-block; margin-bottom:8px; }
+.header h1 { font-size:1.25rem; font-weight:700; margin-bottom:4px; }
+.header p  { font-size:.88rem; color:var(--muted); }
+
+.main { display:grid; grid-template-columns:320px 1fr; gap:20px; padding:0 24px; align-items:start; }
+
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.panel-section { padding:16px 18px; border-bottom:1px solid var(--border); }
+.panel-section:last-child { border-bottom:none; }
+.panel-label { font-family:monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+
+/* Mapa de áreas editable */
+.mapa-wrap {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:4px;
+  margin-bottom:12px;
+}
+.celda-mapa {
+  position:relative;
+}
+.celda-mapa select {
+  width:100%;
+  font-family:monospace;
+  font-size:.8rem;
+  padding:6px 4px;
+  border:2px solid var(--border);
+  border-radius:6px;
+  background:var(--bg);
+  color:var(--text);
+  cursor:pointer;
+  appearance:none;
+  text-align:center;
+  font-weight:700;
+  transition:all .15s;
+}
+.celda-mapa select:focus { outline:none; border-color:var(--accent); }
+
+/* Colores de área */
+.celda-mapa select.zona-header  { background:#dbeafe; border-color:#93c5fd; color:#1e40af; }
+.celda-mapa select.zona-nav     { background:#fce7f3; border-color:#f9a8d4; color:#9d174d; }
+.celda-mapa select.zona-main    { background:#d1fae5; border-color:#6ee7b7; color:#065f46; }
+.celda-mapa select.zona-sidebar { background:#fef3c7; border-color:#fcd34d; color:#92400e; }
+.celda-mapa select.zona-footer  { background:#ede9fe; border-color:#c4b5fd; color:#5b21b6; }
+.celda-mapa select.zona-punto   { background:#f3f4f6; border-color:#d1d5db; color:#9ca3af; }
+
+.leyenda { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:4px; }
+.ley-item { display:flex; align-items:center; gap:5px; font-size:.75rem; font-family:monospace; font-weight:600; }
+.ley-dot  { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+
+.codigo-preview { background:#18181b; border-radius:8px; padding:14px 16px; font-family:monospace; font-size:.78rem; line-height:1.9; color:#e4e4e7; white-space:pre; overflow-x:auto; }
+.c-prop { color:#6ee7b7; }
+.c-val  { color:#86efac; }
+.c-str  { color:#fde68a; }
+.c-pun  { color:#71717a; }
+.c-cmt  { color:#4b5563; font-style:italic; }
+.c-area-h { color:#93c5fd; }
+.c-area-n { color:#f9a8d4; }
+.c-area-m { color:#6ee7b7; }
+.c-area-s { color:#fcd34d; }
+.c-area-f { color:#c4b5fd; }
+
+.viz { display:flex; flex-direction:column; gap:16px; }
+.demo-wrap { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.demo-label { font-family:monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+
+.layout-demo {
+  display:grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap:6px;
+  min-height:260px;
+}
+.zona {
+  border-radius:6px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:monospace; font-size:.85rem; font-weight:700;
+  padding:12px;
+  min-height:60px;
+  transition:all .3s;
+}
+.zona-label { font-size:.72rem; font-weight:400; opacity:.7; margin-top:4px; }
+
+.zona-header  { background:#dbeafe; color:#1e40af; }
+.zona-nav     { background:#fce7f3; color:#9d174d; }
+.zona-main    { background:#d1fae5; color:#065f46; }
+.zona-sidebar { background:#fef3c7; color:#92400e; }
+.zona-footer  { background:#ede9fe; color:#5b21b6; }
+
+.tabla-valores { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.tabla-valores table { width:100%; border-collapse:collapse; font-size:.84rem; }
+.tabla-valores th { background:var(--bg); padding:8px 14px; text-align:left; font-size:.72rem; font-family:monospace; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+.tabla-valores td { padding:8px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+.tabla-valores tr:last-child td { border-bottom:none; }
+.tabla-valores td:first-child { font-family:monospace; font-weight:700; color:var(--accent); white-space:nowrap; }
+.tabla-valores td:last-child { color:var(--muted); font-size:.82rem; line-height:1.5; }
+
+.info-nota { background:var(--tag-bg); border:1px solid var(--tag-border); border-radius:8px; padding:14px 16px; font-size:.85rem; color:var(--tag-text); line-height:1.6; }
+code.ic { background:rgba(0,0,0,.07); padding:1px 6px; border-radius:4px; font-size:.8rem; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .header h1 { font-size: 1.1rem; }
+  .mapa-editor {
+    grid-template-columns: repeat(3, 1fr) !important;
+    font-size: .78rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Grid Workshop · EJ-05</div>
+  <h1>grid-template-areas — zonas con nombre</h1>
+  <p>Define el layout de una página dibujándolo con texto en el CSS.</p>
+</div>
+
+<div class="main">
+
+  <aside class="panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Concepto</div>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:10px">
+        Con <code class="ic">grid-template-areas</code> defines el layout como un mapa visual:
+        cada celda del mapa contiene el nombre de la zona. Los elementos hijos se asignan
+        con <code class="ic">grid-area: nombre</code>.<br><br>
+        Un <code class="ic">.</code> (punto) deja la celda vacía.
+      </p>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Dibuja el layout (3 col × 4 fil)</div>
+
+      <div class="leyenda" style="margin-bottom:10px">
+        <div class="ley-item"><div class="ley-dot" style="background:#93c5fd"></div>header</div>
+        <div class="ley-item"><div class="ley-dot" style="background:#f9a8d4"></div>nav</div>
+        <div class="ley-item"><div class="ley-dot" style="background:#6ee7b7"></div>main</div>
+        <div class="ley-item"><div class="ley-dot" style="background:#fcd34d"></div>sidebar</div>
+        <div class="ley-item"><div class="ley-dot" style="background:#c4b5fd"></div>footer</div>
+        <div class="ley-item"><div class="ley-dot" style="background:#d1d5db"></div>. (vacío)</div>
+      </div>
+
+      <div class="mapa-wrap" id="mapa">
+        <!-- 12 celdas = 3 col × 4 fil -->
+      </div>
+      <p style="font-size:.75rem;color:var(--muted);margin-top:6px">Haz clic en cada celda para cambiar la zona.</p>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">CSS resultante</div>
+      <div class="codigo-preview" id="codigoPreview">...</div>
+    </div>
+
+  </aside>
+
+  <div class="viz">
+
+    <div class="demo-wrap">
+      <div class="demo-label">Vista previa del layout</div>
+      <div class="layout-demo" id="layoutDemo">
+        <div class="zona zona-header" id="z-header">header<span class="zona-label">grid-area: header</span></div>
+        <div class="zona zona-nav"    id="z-nav">nav<span class="zona-label">grid-area: nav</span></div>
+        <div class="zona zona-main"   id="z-main">main<span class="zona-label">grid-area: main</span></div>
+        <div class="zona zona-sidebar" id="z-sidebar">sidebar<span class="zona-label">grid-area: sidebar</span></div>
+        <div class="zona zona-footer"  id="z-footer">footer<span class="zona-label">grid-area: footer</span></div>
+      </div>
+    </div>
+
+    <div class="tabla-valores">
+      <table>
+        <thead><tr><th>regla</th><th>función</th></tr></thead>
+        <tbody>
+          <tr><td>grid-template-areas</td><td>En el contenedor. Define el mapa de zonas con strings entre comillas, uno por fila.</td></tr>
+          <tr><td>grid-area: nombre</td><td>En cada hijo. Le dice al elemento en qué zona debe colocarse.</td></tr>
+          <tr><td>. (punto)</td><td>Celda vacía. No se le asigna ningún elemento.</td></tr>
+          <tr><td>Repetir nombre</td><td>Si un nombre aparece en varias celdas contiguas, el elemento las ocupa todas (debe formar un rectángulo).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-nota">
+      <strong>⚠ Las zonas deben ser rectángulos.</strong>
+      No puedes tener una zona en forma de L o discontinua: el navegador ignorará el layout.
+      Si ves que el resultado no cuadra, comprueba que cada nombre forma un bloque rectangular.
+    </div>
+
+    <!-- RETO -->
+    <div style="background:#1e1b4b;border-radius:10px;padding:20px 22px;color:#e0e7ff">
+      <div style="font-family:monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;margin-bottom:10px">🎯 Reto — escríbelo tú</div>
+      <p style="font-size:.88rem;line-height:1.7;margin-bottom:10px">
+        Crea <code style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:4px">reto-ej05.html</code>
+        con un layout de <strong>2 columnas (1fr 3fr) × 3 filas</strong> usando <code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px">grid-template-areas</code>:
+      </p>
+      <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:12px 14px;font-family:monospace;font-size:.82rem;line-height:1.8;color:#c7d2fe;margin-bottom:14px">
+        ┌─────────────────────┐<br>
+        │ header &nbsp; header &nbsp; │  ← fila 1: ocupa las 2 columnas<br>
+        ├──────┬──────────────┤<br>
+        │ nav &nbsp;│ main &nbsp; &nbsp; &nbsp; &nbsp;│  ← fila 2<br>
+        ├──────┤ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;│<br>
+        │ nav &nbsp;│ main &nbsp; &nbsp; &nbsp; &nbsp;│  ← fila 3<br>
+        └──────┴──────────────┘
+      </div>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:14px 16px;font-family:monospace;font-size:.82rem;line-height:2;color:#c7d2fe">
+        .contenedor {<br>
+        &nbsp;&nbsp;display: grid;<br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← grid-template-columns */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← grid-template-rows (3 filas de 80px) */</span><br>
+        &nbsp;&nbsp;<span style="color:#818cf8">/* ← grid-template-areas */</span><br>
+        &nbsp;&nbsp;gap: 8px;<br>
+        }<br>
+        .header { grid-area: header; }<br>
+        .nav    { grid-area: nav; }<br>
+        .main   { grid-area: main; }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const zonas = ['header','nav','main','sidebar','footer','.'];
+  const coloresSelect = {
+    'header':'zona-header','nav':'zona-nav','main':'zona-main',
+    'sidebar':'zona-sidebar','footer':'zona-footer','.':'zona-punto'
+  };
+
+  // Estado inicial del mapa 3×4
+  let mapa = [
+    ['header','header','header'],
+    ['nav','main','sidebar'],
+    ['nav','main','sidebar'],
+    ['footer','footer','footer'],
+  ];
+
+  function buildMapa() {
+    const wrap = document.getElementById('mapa');
+    wrap.innerHTML = '';
+    for (let r=0; r<4; r++) {
+      for (let c=0; c<3; c++) {
+        const sel = document.createElement('select');
+        zonas.forEach(z => {
+          const opt = document.createElement('option');
+          opt.value = z; opt.textContent = z;
+          if (z === mapa[r][c]) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.className = coloresSelect[mapa[r][c]];
+        sel.addEventListener('change', function() {
+          mapa[r][c] = this.value;
+          this.className = coloresSelect[this.value];
+          update();
+        });
+        const wrap2 = document.createElement('div');
+        wrap2.className = 'celda-mapa';
+        wrap2.appendChild(sel);
+        wrap.appendChild(wrap2);
+      }
+    }
+  }
+
+  function update() {
+    // Código CSS
+    const filas = mapa.map(fila => '"' + fila.join(' ') + '"').join('\n    ');
+    document.getElementById('codigoPreview').innerHTML =
+      '.contenedor {\n' +
+      '  <span class="c-prop">display</span>: <span class="c-val">grid</span>;\n' +
+      '  <span class="c-prop">grid-template-columns</span>: <span class="c-val">1fr 2fr 1fr</span>;\n' +
+      '  <span class="c-prop">grid-template-areas</span>:\n' +
+      '    ' + mapa.map(f => '<span class="c-str">"' + f.join(' ') + '"</span>').join('\n    ') + ';\n' +
+      '}\n' +
+      '.header  { <span class="c-prop">grid-area</span>: <span class="c-area-h">header</span>; }\n' +
+      '.nav     { <span class="c-prop">grid-area</span>: <span class="c-area-n">nav</span>; }\n' +
+      '.main    { <span class="c-prop">grid-area</span>: <span class="c-area-m">main</span>; }\n' +
+      '.sidebar { <span class="c-prop">grid-area</span>: <span class="c-area-s">sidebar</span>; }\n' +
+      '.footer  { <span class="c-prop">grid-area</span>: <span class="c-area-f">footer</span>; }';
+
+    // Preview layout
+    const demo = document.getElementById('layoutDemo');
+    // Reconstruye grid-template-areas y grid-template-rows
+    demo.style.gridTemplateAreas = mapa.map(f => '"' + f.join(' ') + '"').join(' ');
+    demo.style.gridTemplateRows = 'repeat(4, 60px)';
+
+    // Asigna grid-area a cada zona
+    ['header','nav','main','sidebar','footer'].forEach(z => {
+      document.getElementById('z-' + z).style.gridArea = z;
+      // Comprueba si la zona aparece en el mapa
+      const aparece = mapa.flat().includes(z);
+      document.getElementById('z-' + z).style.display = aparece ? '' : 'none';
+    });
+  }
+
+  buildMapa();
+  update();
+</script>
+
+</body>
+</html>
